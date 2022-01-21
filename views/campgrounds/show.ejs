@@ -7,6 +7,12 @@
         <h2>
             <%= campground.location %>
         </h2>
+        <img src="<%= campground.image %>" width="400px" height="400px">
+
+        <br>
+        <p>
+            <%= campground.description %>
+        </p>
         <a href="/campgrounds/<%= campground._id%>/edit">Edit Campground</a>
         <br>
         <form action="/campgrounds/<%= campground._id%>?_method=DELETE" method="post">
