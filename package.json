@@ -94,6 +94,7 @@
     "is-typedarray": "^1.0.0",
     "is-yarn-global": "^0.3.0",
     "jake": "^10.8.2",
+    "joi": "^17.5.0",
     "json-buffer": "^3.0.0",
     "kareem": "^2.3.3",
     "keyv": "^3.1.0",
