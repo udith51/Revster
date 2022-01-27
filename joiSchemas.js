@@ -8,3 +8,6 @@ module.exports.campgroundSchema = Joi.object({
         description: Joi.string().required(),
     }).required()
 })
+
+//server side validation for title,price,...
+//Can be done in app.js with if(!req.body.title), if(!req.body.price),... but very tedious
