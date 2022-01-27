@@ -6,9 +6,10 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 const Joi = require('joi');
 const Campground = require('./models/campground');
+const Review = require('./models/review');
 const ExpressError = require('./utilities/ExpressError');
 const catchAsync = require('./utilities/catchAsync');
-const { campgroundSchema } = require('./joiSchemas')
+const { campgroundSchema, reviewSchema } = require('./joiSchemas')
 
 
 mongoose.connect('mongodb://localhost:27017/Revster')
@@ -31,6 +32,16 @@ const validateCampground_OnServer = (req, res, next) => {
         next();
     }
 }//middleware
+const validateReview_OnServer = ((req, res, next) => {
+    const { error } = reviewSchema.validate(req.body);
+    if (error) {
+        const msg = error.details.map(el => el.message).join(',');
+        throw new ExpressError(msg, 400);
+    }
+    else {
+        next();
+    }
+})
 
 app.get('/', (req, res) => {
     res.render('home');
@@ -64,6 +75,16 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     const campground = await Campground.findByIdAndDelete(id);
     res.redirect(`/campgrounds`);
 }))
+app.post('/campgrounds/:id/reviews', validateReview_OnServer, catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    campground.save();
+    review.save();
+    res.redirect(`/campgrounds/${id}`);
+}))
+
 
 app.all('*', (req, res, next) => {
     next(new ExpressError("Page not found", 404));
