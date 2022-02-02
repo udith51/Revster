@@ -28,19 +28,29 @@ router.get('/campgrounds/new', (req, res) => {
 })
 router.get('/campgrounds/:id', catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id).populate('reviews');
+    if (!campground) {
+        req.flash('error', 'No such campground present');
+        return res.redirect('/campgrounds');
+    }
     res.render('campgrounds/show', { campground });
 }))
 router.post('/campgrounds', validateCampground_OnServer, catchAsync(async (req, res, next) => {
     const campground = new Campground(req.body.campground);
     await campground.save();
+    req.flash('success', 'Campground added successfully!');
     res.redirect(`/campgrounds/${campground._id}`);
 }))
 router.get('/campgrounds/:id/edit', catchAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id);
+    if (!campground) {
+        req.flash('error', 'No such campground present');
+        return res.redirect('/campgrounds');
+    }
     res.render('campgrounds/edit', { campground });
 }))
 router.put('/campgrounds/:id', validateCampground_OnServer, catchAsync(async (req, res) => {
     const campground = await Campground.findByIdAndUpdate(req.params.id, { ...req.body.campground }, { runValidators: true, new: true });
+    req.flash('success', 'Campground updated successfully!');
     res.redirect(`/campgrounds/${campground._id}`);
 }))
 router.delete('/campgrounds/:id', catchAsync(async (req, res) => {
@@ -52,6 +62,7 @@ router.delete('/campgrounds/:id', catchAsync(async (req, res) => {
     }
     await Review.deleteMany({ _id: { $in: ids } });
     await Campground.findByIdAndDelete(id);
+    req.flash('success', 'Campground deleted successfully!');
     res.redirect(`/campgrounds`);
 }))
 
