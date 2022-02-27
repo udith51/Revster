@@ -16,18 +16,39 @@ const validateReview_OnServer = ((req, res, next) => {
         next();
     }
 })
+const isLoggedIn = (req, res, next) => {
+    req.session.returnTo = req.originalUrl;
+    if (!req.isAuthenticated()) {
+        req.flash('error', 'You must be logged in');
+        return res.redirect('/login');
+    }
+    next();
+}
+const isRevAuthor = async (req, res, next) => {
+    const { rid, id } = req.params;
+    console.log(rid);
+    const review = await Review.findById(rid);
+    if (!review.author.equals(req.user._id)) {
+        console.log('Here');
+        req.flash('error', 'You do not have permission to do that');
+        return res.redirect(`/campgrounds/${id}`);
+    }
+    next();
+}
 
-router.post('/campgrounds/:id/reviews', validateReview_OnServer, catchAsync(async (req, res) => {
+
+router.post('/campgrounds/:id/reviews', isLoggedIn, validateReview_OnServer, catchAsync(async (req, res) => {
     const { id } = req.params;
     const campground = await Campground.findById(id);
     const review = new Review(req.body.review);
+    review.author = req.user;
     campground.reviews.push(review);
     campground.save();
     review.save();
     req.flash('success', 'Review added successfully!');
     res.redirect(`/campgrounds/${id}`);
 }))
-router.delete('/campgrounds/:id/reviews/:rid', catchAsync(async (req, res) => {
+router.delete('/campgrounds/:id/reviews/:rid', isLoggedIn, isRevAuthor, catchAsync(async (req, res) => {
     const { id, rid } = req.params;
     await Review.findByIdAndDelete(rid);
     await Campground.findByIdAndUpdate(id, { $pull: { reviews: rid } });
