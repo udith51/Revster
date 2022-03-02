@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Campground = require('../models/campground');
 const Review = require('../models/review');
+const reviews_controller = require('../controllers/reviews_controller')
 const ExpressError = require('../utilities/ExpressError');
 const catchAsync = require('../utilities/catchAsync');
 const { reviewSchema } = require('../joiSchemas');
@@ -37,23 +38,8 @@ const isRevAuthor = async (req, res, next) => {
 }
 
 
-router.post('/campgrounds/:id/reviews', isLoggedIn, validateReview_OnServer, catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const campground = await Campground.findById(id);
-    const review = new Review(req.body.review);
-    review.author = req.user;
-    campground.reviews.push(review);
-    campground.save();
-    review.save();
-    req.flash('success', 'Review added successfully!');
-    res.redirect(`/campgrounds/${id}`);
-}))
-router.delete('/campgrounds/:id/reviews/:rid', isLoggedIn, isRevAuthor, catchAsync(async (req, res) => {
-    const { id, rid } = req.params;
-    await Review.findByIdAndDelete(rid);
-    await Campground.findByIdAndUpdate(id, { $pull: { reviews: rid } });
-    req.flash('success', 'Review deleted successfully!');
-    res.redirect(`/campgrounds/${id}`);
-}))
+router.post('/campgrounds/:id/reviews', isLoggedIn, validateReview_OnServer, catchAsync(reviews_controller.newReview))
+
+router.delete('/campgrounds/:id/reviews/:rid', isLoggedIn, isRevAuthor, catchAsync(reviews_controller.deleteReview))
 
 module.exports = router;
