@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== "production") {
+    require("dotenv").config({ debug: true });
+}
+console.log(process.env);
 const express = require('express');
 const app = express();
 const path = require('path');
@@ -83,4 +87,8 @@ app.listen(3000, () => {
 // passport
 // passport-local
 // passport-local-mongoose
+// multer
+// cloudinary
+// multer-storage-cloudinary
+// dotenv
 // nodemon
