@@ -25,7 +25,16 @@ module.exports.camp_details = async (req, res) => {
     res.render('campgrounds/show', { campground });
 }
 module.exports.createCampground = async (req, res, next) => {
+    const im = [];
     const campground = new Campground(req.body.campground);
+    for (let f of req.files) {
+        let temp = {
+            url: f.path,
+            filename: f.filename
+        }
+        im.push(temp);
+    }
+    campground.images = im;
     campground.author = req.user._id;
     await campground.save();
     req.flash('success', 'Campground added successfully!');

@@ -47,11 +47,7 @@ router.get('/campgrounds/new', isLoggedIn, campgrounds_controller.newcamp_form);
 
 router.get('/campgrounds/:id', catchAsync(campgrounds_controller.camp_details));
 
-// router.post('/campgrounds', isLoggedIn, validateCampground_OnServer, catchAsync(campgrounds_controller.createCampground));
-router.post('/campgrounds', upload.array('image'), (req, res) => {
-    console.log(req.body, req.files);
-    res.send("It worked!");
-})
+router.post('/campgrounds', isLoggedIn, upload.array('image'), validateCampground_OnServer, catchAsync(campgrounds_controller.createCampground));
 
 router.get('/campgrounds/:id/edit', isLoggedIn, isAuthor, catchAsync(campgrounds_controller.editCampground));
 
