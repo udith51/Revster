@@ -16,7 +16,6 @@ const getImage = async () => {
     try {
         const data = await axios.get('https://api.unsplash.com/photos/random?client_id=1P06z6ltWTyFPfcUOVv1Pbc6e0imnSiXmmcYBCFsd_c&collections=2184453');
         return data.data.urls.small;
-        // console.log(data.data.urls.small);
     }
     catch (e) {
         console.log(e);
@@ -32,7 +31,11 @@ const seedDb = async () => {
             location: `${cities[random].city}-${cities[random].state}`,
             author: '6214a378560928f39b1b367a',
             title: `${sample(descriptors)} ${sample(places)}`,
-            image: await getImage(),
+            images: [
+                {
+                    url: await getImage()
+                }
+            ],
             price: getPrice(),
             description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio aliquid aut, quibusdam facere doloribus atque sapiente possimus fugit nemo ex corrupti ab non nisi rerum fugiat maxime quisquam blanditiis quam.",
         })
