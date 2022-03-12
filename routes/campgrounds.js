@@ -51,7 +51,7 @@ router.post('/campgrounds', isLoggedIn, upload.array('image'), validateCampgroun
 
 router.get('/campgrounds/:id/edit', isLoggedIn, isAuthor, catchAsync(campgrounds_controller.editCampground));
 
-router.put('/campgrounds/:id', isLoggedIn, isAuthor, validateCampground_OnServer, catchAsync(campgrounds_controller.updateCampground));
+router.put('/campgrounds/:id', isLoggedIn, isAuthor, upload.array('image'), validateCampground_OnServer, catchAsync(campgrounds_controller.updateCampground));
 
 router.delete('/campgrounds/:id', isLoggedIn, isAuthor, (campgrounds_controller.deleteCampground))
 
