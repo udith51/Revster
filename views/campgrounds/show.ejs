@@ -1,7 +1,10 @@
 <% layout('layouts/boilerplate') %>
     <link rel="stylesheet" href="/css/stars.css">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
     <div class="row mb-3">
         <div class="col-6">
+            <div id="map" style=" width: 400px; height:300px"></div>
             <div id="carouselControls" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner">
                     <% campground.images.forEach((img,i)=>{ %>
@@ -98,9 +101,6 @@
                                 <p class="starability-result" data-rating="<%=review.rating%>">
                                     Rated: <%= review.rating %> stars
                                 </p>
-                                <!-- <h6 class="card-subtitle mb-2 text-muted">
-
-                                </h6> -->
                                 <p class="card-text">
                                     Review: <%= review.body %>
                                 </p>
@@ -116,3 +116,21 @@
                         <% } %>
         </div>
     </div>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
+    <script>
+        const kx = '<%-campground.geometry.coordinates%>';
+        const lg = kx.substring(0, kx.indexOf(','));
+        const lt = kx.substring(kx.indexOf(',') + 1);
+        mapboxgl.accessToken = '<%- process.env.MAPBOX_TOKEN %> ';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [lg, lt],
+            zoom: 7
+        });
+        const marker1 = new mapboxgl.Marker()
+            .setLngLat([lg, lt])
+            .setPopup(new mapboxgl.Popup().setHTML("<h6><%-campground.title%></h6>"))
+            .addTo(map);
+    </script>
