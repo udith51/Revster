@@ -90,4 +90,5 @@ app.listen(3000, () => {
 // cloudinary
 // multer-storage-cloudinary
 // dotenv
+// mapbox
 // nodemon
