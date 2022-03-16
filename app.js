@@ -11,6 +11,7 @@ const session = require('express-session');
 const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+const mongoSanitize = require('express-mongo-sanitize');
 
 const ExpressError = require('./utilities/ExpressError');
 const campgroundRoutes = require('./routes/campgrounds');
@@ -29,12 +30,17 @@ app.set('views', path.join(__dirname, 'views'));//for ejs
 app.use(express.urlencoded({ extended: true }));//for req.body
 app.use(methodOverride('_method'));//for other form requests
 app.use(express.static(path.join(__dirname, 'public')));//for serving static files
+app.use(mongoSanitize({
+    replaceWith: '_'
+}))
 const sessionConfig = {
+    name: 'Sensitive',
     secret: 'thisisasecret',
     resave: false,
     saveUninitialized: true,
     cookie: {
         httpOnly: true,
+        // secure:true,
         expies: Date.now() + 1000 * 60 * 60 * 24 * 7,
         maxAge: 1000 * 60 * 60 * 24 * 7
     }
@@ -48,7 +54,6 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
-    console.log(req.session);
     res.locals.currentUser = req.user;
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
@@ -72,7 +77,7 @@ app.use((err, req, res, next) => {
     res.status(err.status).render('error', { err });
 })
 
-app.listen(3000, () => {
+app.listen(5000, () => {
     console.log('Serving on port 3000!');
 })
 
@@ -91,4 +96,6 @@ app.listen(3000, () => {
 // multer-storage-cloudinary
 // dotenv
 // mapbox
+// express-mongo-sanitize
+// sanitize-html
 // nodemon
