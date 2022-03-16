@@ -1,6 +1,8 @@
 <% layout('layouts/boilerplate') %>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
+    <div id="map" style="width: 100%;height: 500px;"></div>
     <h1>All Campgrounds</h1>
-
     <div class="d-flex justify-content-evenly flex-wrap row">
         <% for(let campground of campgrounds) {%>
             <div class="card m-2 col-6 col-md-3">
@@ -18,3 +20,113 @@
 
             <% } %>
     </div>
+
+    <script>
+        mapboxgl.accessToken = '<%- process.env.MAPBOX_TOKEN %> ';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/dark-v10',
+            center: [-103.5917, 40.6699],
+            zoom: 3
+        });
+
+        map.on('load', () => {
+            const cd = { features: JSON.parse('<%-JSON.stringify(campgrounds)%>') };
+            console.log(cd);
+            map.addSource('campgrounds', {
+                type: 'geojson',
+                data: cd,
+                cluster: true,
+                clusterMaxZoom: 14,
+                clusterRadius: 50
+            });
+
+            map.addLayer({
+                id: 'clusters',
+                type: 'circle',
+                source: 'campgrounds',
+                filter: ['has', 'point_count'],
+                paint: {
+                    'circle-color': [
+                        'step',
+                        ['get', 'point_count'],
+                        '#00BCD4',
+                        3,
+                        '#2196F3',
+                        6,
+                        '#3F5185'
+                    ],
+                    'circle-radius': [
+                        'step',
+                        ['get', 'point_count'],
+                        15,
+                        3,
+                        20,
+                        6,
+                        25
+                    ]
+                }
+            });
+
+            map.addLayer({
+                id: 'cluster-count',
+                type: 'symbol',
+                source: 'campgrounds',
+                filter: ['has', 'point_count'],
+                layout: {
+                    'text-field': '{point_count_abbreviated}',
+                    'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+                    'text-size': 12
+                }
+            });
+
+            map.addLayer({
+                id: 'unclustered-point',
+                type: 'circle',
+                source: 'campgrounds',
+                filter: ['!', ['has', 'point_count']],
+                paint: {
+                    'circle-color': '#11b4da',
+                    'circle-radius': 4,
+                    'circle-stroke-width': 1,
+                    'circle-stroke-color': '#fff'
+                }
+            });
+            map.on('click', 'clusters', (e) => {
+                const features = map.queryRenderedFeatures(e.point, {
+                    layers: ['clusters']
+                });
+                const clusterId = features[0].properties.cluster_id;
+                map.getSource('campgrounds').getClusterExpansionZoom(
+                    clusterId,
+                    (err, zoom) => {
+                        if (err) return;
+
+                        map.easeTo({
+                            center: features[0].geometry.coordinates,
+                            zoom: zoom
+                        });
+                    }
+                );
+            });
+            map.on('click', 'unclustered-point', (e) => {
+                const coordinates = e.features[0].geometry.coordinates.slice();
+                const mag = e.features[0].properties.mag;
+                // const text = e.features[0].properties.popUpMarkUp;
+                // const id = e.features[0].properties.id;
+                new mapboxgl.Popup()
+                    .setLngLat(coordinates)
+                    .setHTML(
+                        // `<strong><a href="campgrounds/${id}">${text}</a></strong>`
+                    )
+                    .addTo(map);
+            });
+
+            map.on('mouseenter', 'clusters', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+            map.on('mouseleave', 'clusters', () => {
+                map.getCanvas().style.cursor = '';
+            });
+        });
+    </script>
