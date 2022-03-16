@@ -127,6 +127,7 @@
             center: [lg, lt],
             zoom: 7
         });
+        map.addControl(new mapboxgl.NavigationControl())
         const marker1 = new mapboxgl.Marker()
             .setLngLat([lg, lt])
             .setPopup(new mapboxgl.Popup().setHTML("<h6><%-campground.title%></h6>"))
