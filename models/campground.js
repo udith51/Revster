@@ -22,6 +22,14 @@ const CampgroundSchema = Schema({
             required: true
         }
     },
+    properties: {
+        popUpMarkUp: {
+            type: String
+        },
+        id: {
+            type: String
+        }
+    },
     description: String,
     location: String,
     author: {

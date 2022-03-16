@@ -36,9 +36,18 @@ const seedDb = async () => {
                     url: await getImage()
                 }
             ],
+            geometry: {
+                type: 'Point',
+                coordinates: [cities[random].longitude, cities[random].latitude]
+            },
+            properties: {
+                popUpMarkUp: `${sample(descriptors)} ${sample(places)}`,
+            },
             price: getPrice(),
             description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio aliquid aut, quibusdam facere doloribus atque sapiente possimus fugit nemo ex corrupti ab non nisi rerum fugiat maxime quisquam blanditiis quam.",
         })
+        await camp.save();
+        camp.properties.id = camp._id;
         await camp.save();
     }
 }

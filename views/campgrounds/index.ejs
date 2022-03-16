@@ -112,12 +112,12 @@
             map.on('click', 'unclustered-point', (e) => {
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const mag = e.features[0].properties.mag;
-                // const text = e.features[0].properties.popUpMarkUp;
-                // const id = e.features[0].properties.id;
+                const text = e.features[0].properties.popUpMarkUp;
+                const id = e.features[0].properties.id;
                 new mapboxgl.Popup()
                     .setLngLat(coordinates)
                     .setHTML(
-                        // `<strong><a href="campgrounds/${id}">${text}</a></strong>`
+                        `<strong><a href="campgrounds/${id}">${text}</a></strong>`
                     )
                     .addTo(map);
             });

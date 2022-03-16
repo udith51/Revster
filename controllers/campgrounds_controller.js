@@ -42,6 +42,8 @@ module.exports.createCampground = async (req, res, next) => {
         }
         im.push(temp);
     }
+    campground.properties.popUpMarkUp = `${campground.title}`;
+    campground.properties.id = `${campground._id}`;
     campground.images = im;
     campground.author = req.user._id;
     await campground.save();
