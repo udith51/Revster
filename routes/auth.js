@@ -5,6 +5,7 @@ const users_controller = require('../controllers/auth_controller');
 const User = require('../models/user');
 const catchAsync = require('../utilities/catchAsync');
 
+router.get('/', users_controller.homePage);
 
 router.get('/register', users_controller.registrationForm);
 

@@ -1,6 +1,10 @@
 const User = require('../models/user');
 const passport = require('passport');
 
+module.exports.homePage = (req, res) => {
+    res.render('home');
+}
+
 module.exports.registrationForm = (req, res) => {
     res.render('auth/register');
 }
