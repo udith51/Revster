@@ -12,6 +12,7 @@ const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const mongoSanitize = require('express-mongo-sanitize');
+const MongoStore = require('connect-mongo');
 
 const ExpressError = require('./utilities/ExpressError');
 const campgroundRoutes = require('./routes/campgrounds');
@@ -19,8 +20,10 @@ const reviewRoutes = require('./routes/reviews');
 const authRoutes = require('./routes/auth');
 const User = require('./models/user');
 
+// const dbUrl = process.env.DB_URL;
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/Revster';
 //Mongoose Connection
-mongoose.connect('mongodb://localhost:27017/Revster')
+mongoose.connect(dbUrl)
     .then(() => console.log('Connected to database'))
     .catch((e) => console.log("Error", e))
 
@@ -33,9 +36,24 @@ app.use(express.static(path.join(__dirname, 'public')));//for serving static fil
 app.use(mongoSanitize({
     replaceWith: '_'
 }))
+
+const secret = process.env.SECRET || 'thisisasecret';
+
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    crypto: {
+        secret: secret
+    },
+    touchAfter: 24 * 60 * 60
+})
+store.on("error", function (e) {
+    console.log('Session Store Error', e);
+})
+
 const sessionConfig = {
-    name: 'Sensitive',
-    secret: 'thisisasecret',
+    store,
+    name: 'session',
+    secret: secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -76,9 +94,9 @@ app.use((err, req, res, next) => {
     }
     res.status(err.status).render('error', { err });
 })
-
-app.listen(5000, () => {
-    console.log('Serving on port 3000!');
+const port = process.env.PORT || 5000
+app.listen(port, () => {
+    console.log(`Serving on port ${port}!`);
 })
 
 
@@ -98,4 +116,5 @@ app.listen(5000, () => {
 // mapbox
 // express-mongo-sanitize
 // sanitize-html
+// connect-mongo
 // nodemon
